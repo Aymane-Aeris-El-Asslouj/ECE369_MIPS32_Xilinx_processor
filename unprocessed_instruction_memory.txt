@@ -1,0 +1,54 @@
+20100003	//	main:	addi	$s0, $zero, 3 ->	main:	addi	$s0, $zero, 3
+00000000	//		nop ->		nop
+00000000	//		nop ->		nop
+00000000	//		nop ->		nop
+00000000	//		nop ->		nop
+00000000	//		nop ->		nop
+20080004	//		addi	$t0, $zero, 4 ->		addi	$t0, $zero, 4
+00000000	//		nop ->		nop
+00000000	//		nop ->		nop
+00000000	//		nop ->		nop
+00000000	//		nop ->		nop
+00000000	//		nop ->		nop
+02208824	//		and	$s1, $s1, $zero ->		and	$s1, $s1, $zero
+00000000	//		nop ->		nop
+00000000	//		nop ->		nop
+00000000	//		nop ->		nop
+00000000	//		nop ->		nop
+00000000	//		nop ->		nop
+8d090000	//	loop:	lw	$t1, 0($t0) ->	loop:	lw	$t1, 0($t0)
+00000000	//		nop ->		nop
+00000000	//		nop ->		nop
+00000000	//		nop ->		nop
+00000000	//		nop ->		nop
+00000000	//		nop ->		nop
+02298820	//		add	$s1, $s1, $t1 ->		add	$s1, $s1, $t1
+00000000	//		nop ->		nop
+00000000	//		nop ->		nop
+00000000	//		nop ->		nop
+00000000	//		nop ->		nop
+00000000	//		nop ->		nop
+21080004	//		addi	$t0, $t0, 4 ->		addi	$t0, $t0, 4
+00000000	//		nop ->		nop
+00000000	//		nop ->		nop
+00000000	//		nop ->		nop
+00000000	//		nop ->		nop
+00000000	//		nop ->		nop
+2210ffff	//		addi	$s0, $s0, -1 ->		addi	$s0, $s0, -1
+00000000	//		nop ->		nop
+00000000	//		nop ->		nop
+00000000	//		nop ->		nop
+00000000	//		nop ->		nop
+00000000	//		nop ->		nop
+1410ffe7	//		bne	$0, $s0, loop ->		bne	$0, $s0, loop
+00000000	//		nop ->		nop
+00000000	//		nop ->		nop
+00000000	//		nop ->		nop
+00000000	//		nop ->		nop
+00000000	//		nop ->		nop
+ac110018	//		sw	$s1, 24($zero) ->		sw	$s1, 24($zero)
+00000000	//		nop ->		nop
+00000000	//		nop ->		nop
+00000000	//		nop ->		nop
+00000000	//		nop ->		nop
+00000000	//		nop ->		nop
