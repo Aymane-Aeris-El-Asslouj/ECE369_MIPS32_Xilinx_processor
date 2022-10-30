@@ -1,5 +1,6 @@
 // Aeris El Asslouj 100%
 // Group 26
+// 5 stage pipeline with branches in ID
 
 `timescale 1ns / 1ps
 `default_nettype none
