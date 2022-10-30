@@ -1,11 +1,13 @@
 `timescale 1ns / 1ps
 `default_nettype none
 
-module ControlUnit(opcode, funct, rt,
+module ControlUnit(opcode, funct, rs, rt, ID_EX_RegWrite, EX_MEM_RegWrite,
+                    EX_WriteRegister, EX_MEM_WriteRegister,
 
                     ID_ALUControl, ID_R, ID_RegWrite, ID_MemWrite,
                     ID_MemRead, ID_HalfControl, ID_ByteControl, branch,
-                    force_branch, JR, J, ID_JALControl, CompareControl);
+                    force_branch, JR, J, ID_JALControl, CompareControl,
+                    ID_stall);
 
           
     // ALU operations
@@ -72,13 +74,16 @@ module ControlUnit(opcode, funct, rt,
     localparam [5:0] JR_FUNCT = 6'b001000;
     
     input [5:0] opcode, funct;
-    input [4:0] rt;
+    input [4:0] rs, rt;
     
     output wire ID_R, ID_MemWrite, ID_RegWrite, ID_MemRead, branch;
     output wire force_branch, JR, J;
     output wire ID_HalfControl, ID_ByteControl, ID_JALControl;
     output reg [3:0] ID_ALUControl;
     output reg [2:0] CompareControl;
+    
+    wire strict_branch, equality_branch;
+    wire special, jump;
 
     always @(*) begin
         case(opcode)
@@ -128,7 +133,9 @@ module ControlUnit(opcode, funct, rt,
     
     end
     
-    assign ID_R = (opcode == SPECIAL) | (opcode == SPECIAL2);
+    assign special = (opcode == SPECIAL);
+    
+    assign ID_R = special | (opcode == SPECIAL2);
     
     assign ID_HalfControl = (opcode == SH_OPCODE) | (opcode == LH_OPCODE);
     assign ID_ByteControl = (opcode == SB_OPCODE) | (opcode == LB_OPCODE);
@@ -138,17 +145,34 @@ module ControlUnit(opcode, funct, rt,
     
     assign ID_JALControl = (opcode == JAL_OPCODE);
     
-    assign JR = (opcode == SPECIAL & funct == JR_FUNCT);
-    assign J = (opcode == J_OPCODE) | ID_JALControl;
+    assign jump = (opcode == J_OPCODE);
+    assign JR = special & (funct == JR_FUNCT);
+    assign J = jump | ID_JALControl;
     
-    assign branch = (opcode == BEQ_OPCODE) | (opcode == BNE_OPCODE)
-     | (opcode == REGIMM) | (opcode == BGTZ_OPCODE) | (opcode == BLEZ_OPCODE);
+    assign strict_branch = (opcode == REGIMM) | (opcode == BGTZ_OPCODE) | (opcode == BLEZ_OPCODE);
+    assign equality_branch = (opcode == BEQ_OPCODE) | (opcode == BNE_OPCODE);
+    assign branch = equality_branch | strict_branch;
      
     assign force_branch = JR | J;
-    
     
     assign ID_RegWrite = (~(ID_MemWrite | branch | force_branch)) | ID_JALControl;
     
     
-
-endmodule
+    
+    
+    // Hazard detection
+    output wire ID_stall;
+    
+    input wire ID_EX_RegWrite, EX_MEM_RegWrite;
+    input [4:0] EX_WriteRegister, EX_MEM_WriteRegister;
+    
+    
+    assign ID_stall = ((rs != 5'b0) & ((ID_EX_RegWrite & (rs==EX_WriteRegister)) | 
+                        (EX_MEM_RegWrite & (rs==EX_MEM_WriteRegister))) & (~J))
+                 | ((rt != 5'b0) & ((ID_EX_RegWrite & (rt==EX_WriteRegister)) | 
+                        (EX_MEM_RegWrite & (rt==EX_MEM_WriteRegister))) &(ID_R | ID_MemWrite | equality_branch)) ;
+    
+  
+        
+      
+    endmodule

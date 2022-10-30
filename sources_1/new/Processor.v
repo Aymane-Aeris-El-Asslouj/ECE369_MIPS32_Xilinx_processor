@@ -22,7 +22,8 @@ module Processor(Clk, Reset, out_PC, out_write_data);
     PipeReg #(32+32) IF_ID(
               .Clk(Clk),
               .Reset(Reset),
-              .in({IF_Instruction, IF_PC4}),
+              .stall(ID_stall),
+              .in({{32{(~ID_PCSrc)}} & IF_Instruction, IF_PC4}),
               .out({IF_ID_Instruction, IF_ID_PC4})
     );
     
@@ -31,7 +32,7 @@ module Processor(Clk, Reset, out_PC, out_write_data);
     wire [4:0] ID_rt, ID_rd, ID_shamt;
     wire [3:0] ID_ALUControl;
     wire ID_R, ID_RegWrite, ID_MemWrite, ID_MemRead;
-    wire ID_JALControl, ID_HalfControl, ID_ByteControl;
+    wire ID_JALControl, ID_HalfControl, ID_ByteControl, ID_stall;
     
     wire [31:0] ID_new_PC;
     wire ID_PCSrc;
@@ -39,15 +40,16 @@ module Processor(Clk, Reset, out_PC, out_write_data);
     wire [31:0] ID_EX_PC4, ID_EX_rs_val, ID_EX_rt_val, ID_EX_ext_imm;
     wire [4:0] ID_EX_rt, ID_EX_rd, ID_EX_shamt;
     wire [3:0] ID_EX_ALUControl;
-    wire ID_EX_R, ID_EX_RegWrite_ID, ID_EX_MemWrite, ID_EX_MemRead;
+    wire ID_EX_R, ID_EX_RegWrite, ID_EX_MemWrite, ID_EX_MemRead;
     wire ID_EX_JALControl, ID_EX_HalfControl, ID_EX_ByteControl;
     
     PipeReg #(32*4+5*3+4+7) ID_EX(
-        .Clk(Clk),.Reset(Reset),
-        .in({ID_JALControl, IF_ID_PC4,ID_rs_val,ID_rt_val,ID_ext_imm,ID_rt,ID_rd,ID_shamt,ID_ALUControl,ID_R,
+        .Clk(Clk),.Reset(Reset), 
+        .stall(1'b0),
+        .in({154{(~ID_stall)}} & {ID_JALControl, IF_ID_PC4,ID_rs_val,ID_rt_val,ID_ext_imm,ID_rt,ID_rd,ID_shamt,ID_ALUControl,ID_R,
         ID_RegWrite,ID_MemWrite,ID_MemRead,ID_HalfControl,ID_ByteControl}),
         .out({ID_EX_JALControl, ID_EX_PC4,ID_EX_rs_val,ID_EX_rt_val,ID_EX_ext_imm,ID_EX_rt,ID_EX_rd,ID_EX_shamt,ID_EX_ALUControl,
-        ID_EX_R,ID_EX_RegWrite_ID,ID_EX_MemWrite,ID_EX_MemRead,
+        ID_EX_R,ID_EX_RegWrite,ID_EX_MemWrite,ID_EX_MemRead,
         ID_EX_HalfControl,ID_EX_ByteControl})
     );
     
@@ -59,12 +61,13 @@ module Processor(Clk, Reset, out_PC, out_write_data);
     wire [31:0] EX_MEM_ALUResult, EX_MEM_rt_val;
     wire [4:0] EX_MEM_WriteRegister;
     wire EX_MEM_MemRead, EX_MEM_MemWrite, EX_MEM_HalfControl;
-    wire EX_MEM_ByteControl, EX_MEM_RegWrite_ID;
+    wire EX_MEM_ByteControl, EX_MEM_RegWrite;
     
     PipeReg #(5+32*2+5) EX_MEM(
-        .Clk(Clk),.Reset(Reset),
-        .in({EX_WriteRegister,EX_ALUResult,ID_EX_rt_val,ID_EX_MemRead,ID_EX_MemWrite,ID_EX_HalfControl,ID_EX_ByteControl,ID_EX_RegWrite_ID}),
-        .out({EX_MEM_WriteRegister,EX_MEM_ALUResult,EX_MEM_rt_val,EX_MEM_MemRead,EX_MEM_MemWrite,EX_MEM_HalfControl,EX_MEM_ByteControl,EX_MEM_RegWrite_ID})
+        .Clk(Clk),.Reset(Reset), 
+        .stall(1'b0),
+        .in({EX_WriteRegister,EX_ALUResult,ID_EX_rt_val,ID_EX_MemRead,ID_EX_MemWrite,ID_EX_HalfControl,ID_EX_ByteControl,ID_EX_RegWrite}),
+        .out({EX_MEM_WriteRegister,EX_MEM_ALUResult,EX_MEM_rt_val,EX_MEM_MemRead,EX_MEM_MemWrite,EX_MEM_HalfControl,EX_MEM_ByteControl,EX_MEM_RegWrite})
     );
     
     // Memory
@@ -78,7 +81,8 @@ module Processor(Clk, Reset, out_PC, out_write_data);
     
     PipeReg #(32*2+5+2) MEM_WB(
         .Clk(Clk),.Reset(Reset),
-        .in({MEM_ReadData,EX_MEM_WriteRegister,EX_MEM_ALUResult,EX_MEM_RegWrite_ID,EX_MEM_MemRead}),
+        .stall(1'b0),
+        .in({MEM_ReadData,EX_MEM_WriteRegister,EX_MEM_ALUResult,EX_MEM_RegWrite,EX_MEM_MemRead}),
         .out({MEM_WB_ReadData,MEM_WB_WriteRegister,MEM_WB_ALUResult,MEM_WB_RegWrite,MEM_WB_MemRead})
     );
     
@@ -93,6 +97,7 @@ module Processor(Clk, Reset, out_PC, out_write_data);
         
         .ID_PCSrc(ID_PCSrc),
         .ID_new_PC(ID_new_PC),
+        .ID_stall(ID_stall),
         
         .IF_Instruction(IF_Instruction),
         .IF_PC4(IF_PC4)
@@ -105,8 +110,11 @@ module Processor(Clk, Reset, out_PC, out_write_data);
         .MEM_WB_WriteRegister(MEM_WB_WriteRegister),
         .MEM_WB_RegWrite(MEM_WB_RegWrite),
         .IF_ID_PC4(IF_ID_PC4),
-            
         .IF_ID_Instruction(IF_ID_Instruction),
+        .ID_EX_RegWrite(ID_EX_RegWrite),
+        .EX_MEM_RegWrite(EX_MEM_RegWrite),
+        .EX_WriteRegister(EX_WriteRegister),
+        .EX_MEM_WriteRegister(EX_MEM_WriteRegister),
         
         .ID_rs_val(ID_rs_val),
         .ID_rt_val(ID_rt_val),
@@ -123,7 +131,8 @@ module Processor(Clk, Reset, out_PC, out_write_data);
         .ID_ByteControl(ID_ByteControl),
         .ID_PCSrc(ID_PCSrc),
         .ID_new_PC(ID_new_PC),
-        .ID_JALControl(ID_JALControl)
+        .ID_JALControl(ID_JALControl),
+        .ID_stall(ID_stall)
     ); 
     
     ExecutionUnit p2(

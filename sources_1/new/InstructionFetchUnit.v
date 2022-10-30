@@ -1,11 +1,11 @@
 `timescale 1ns / 1ps
 `default_nettype none
 
-module InstructionFetchUnit(ID_PCSrc, Reset, Clk, ID_new_PC,
+module InstructionFetchUnit(ID_PCSrc, Reset, Clk, ID_new_PC, ID_stall,
     
                             IF_Instruction, IF_PC4);
 
-    input wire Clk, Reset, ID_PCSrc;
+    input wire Clk, Reset, ID_PCSrc, ID_stall;
     input [31:0] ID_new_PC;
     
     wire [31:0] PC;
@@ -28,6 +28,7 @@ module InstructionFetchUnit(ID_PCSrc, Reset, Clk, ID_new_PC,
     ProgramCounter id0(
         .inner_new_PC(inner_new_PC),
         .PC(PC),
+        .ID_stall(ID_stall),
         .Reset(Reset),
         .Clk(Clk)
     ); 

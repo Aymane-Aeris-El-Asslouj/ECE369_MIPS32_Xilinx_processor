@@ -1,54 +1,11 @@
-20100003	//	main:	addi	$s0, $zero, 3 ->	main:	addi	$s0, $zero, 3
-00000000	//		nop ->		nop
-00000000	//		nop ->		nop
-00000000	//		nop ->		nop
-00000000	//		nop ->		nop
-00000000	//		nop ->		nop
-20080004	//		addi	$t0, $zero, 4 ->		addi	$t0, $zero, 4
-00000000	//		nop ->		nop
-00000000	//		nop ->		nop
-00000000	//		nop ->		nop
-00000000	//		nop ->		nop
-00000000	//		nop ->		nop
-02208824	//		and	$s1, $s1, $zero ->		and	$s1, $s1, $zero
-00000000	//		nop ->		nop
-00000000	//		nop ->		nop
-00000000	//		nop ->		nop
-00000000	//		nop ->		nop
-00000000	//		nop ->		nop
-8d090000	//	loop:	lw	$t1, 0($t0) ->	loop:	lw	$t1, 0($t0)
-00000000	//		nop ->		nop
-00000000	//		nop ->		nop
-00000000	//		nop ->		nop
-00000000	//		nop ->		nop
-00000000	//		nop ->		nop
-02298820	//		add	$s1, $s1, $t1 ->		add	$s1, $s1, $t1
-00000000	//		nop ->		nop
-00000000	//		nop ->		nop
-00000000	//		nop ->		nop
-00000000	//		nop ->		nop
-00000000	//		nop ->		nop
-21080004	//		addi	$t0, $t0, 4 ->		addi	$t0, $t0, 4
-00000000	//		nop ->		nop
-00000000	//		nop ->		nop
-00000000	//		nop ->		nop
-00000000	//		nop ->		nop
-00000000	//		nop ->		nop
-2210ffff	//		addi	$s0, $s0, -1 ->		addi	$s0, $s0, -1
-00000000	//		nop ->		nop
-00000000	//		nop ->		nop
-00000000	//		nop ->		nop
-00000000	//		nop ->		nop
-00000000	//		nop ->		nop
-1410ffe7	//		bne	$0, $s0, loop ->		bne	$0, $s0, loop
-00000000	//		nop ->		nop
-00000000	//		nop ->		nop
-00000000	//		nop ->		nop
-00000000	//		nop ->		nop
-00000000	//		nop ->		nop
-ac110018	//		sw	$s1, 24($zero) ->		sw	$s1, 24($zero)
-00000000	//		nop ->		nop
-00000000	//		nop ->		nop
-00000000	//		nop ->		nop
-00000000	//		nop ->		nop
-00000000	//		nop ->		nop
+00004020	//	loop:	add	$t0, $zero, $zero ->	loop:	add	$t0, $zero, $zero
+20090006	//		addi	$t1, $zero, 6 ->		addi	$t1, $zero, 6
+200a000a	//		addi	$t2, $zero, 10 ->		addi	$t2, $zero, 10
+ad090000	//		sw	$t1, 0($t0) ->		sw	$t1, 0($t0)
+ad0a0004	//		sw	$t2, 4($t0) ->		sw	$t2, 4($t0)
+8d100000	//		lw	$s0, 0($t0) ->		lw	$s0, 0($t0)
+8d110004	//		lw	$s1, 4($t0) ->		lw	$s1, 4($t0)
+02305822	//		sub	$t3, $s1, $s0 ->		sub	$t3, $s1, $s0
+000b60c0	//		sll	$t4, $t3, 3 ->		sll	$t4, $t3, 3
+000c6882	//		srl	$t5, $t4, 2 ->		srl	$t5, $t4, 2
+08000000	//		j	loop ->		j	loop

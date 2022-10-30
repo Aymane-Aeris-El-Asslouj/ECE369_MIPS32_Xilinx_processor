@@ -8,8 +8,8 @@
 module top_module(Clk, Reset, out7, en_out);
 
 
-input Clk;
-input Reset;
+input wire Clk;
+input wire Reset;
 output [6:0] out7;
 output [7:0] en_out;
 
